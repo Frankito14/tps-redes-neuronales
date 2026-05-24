@@ -78,26 +78,23 @@ for iteracion in range(COTA):
     
     # Delta de capa oculta (retropropagando delta_salida)
 
-    # w_salida[:, :-1] -> Quitamos el sesgo (ultima columna) de TODAS las filas (neuronas)
-    # ya no podemos hacer (w_salida[:-1] * delta_salida) porque delta_salida es un array, no un escalar, toca hacer la sumatoria.
-    suma_errores_retropropagados = np.dot(delta_salida, w_salida[:, :-1]) # E wi * delta_i
-    delta_oculto = g_derivada(exitacion_oculta) * suma_errores_retropropagados
+    # w_salida[:-1] -> Quitamos el sesgo para calcular el delta de la capa oculta
+    delta_oculto = g_derivada(exitacion_oculta) * (w_salida[:-1] * delta_salida)
 
     # delta_oculta = Error local [10] (Uno por cada neurona)
 
     # Actualizar pesos 
     # Actualizar pesos de capa de salida
-    # No se usa el ejemplo, sino sus propias entradas (activacion/salida de capa oculta)
     for i in range(N_SALIDA):
-        w_salida[i] += N * delta_salida[i] * entradas_salida
+        w_salida[i] = w_salida[i] + N * delta_salida[i] * ejemplo
 
     # Actualizar pesos de capa oculta (por cada neurona)
     for j in range(N_OCULTAS):
-        w_oculta[j] += N * delta_oculto[j] * ejemplo
+        w_oculta[j] = w_oculta[j] + N * delta_oculto[j] * ejemplo
 
     #Muestra actualizacion del error cada 1000 iteraciones
     if iteracion % 1000 == 0:
-        print(f"Iteracion #{iteracion} - Error: {error}")
+        print(f"Iteracion #{iteracion} - Error: {error:.4f}")
 
 # --- RESULTADOS ---
 print("\nResultados finales:")
@@ -108,7 +105,6 @@ for numero, ejemplo in enumerate(ENTRADAS):
     exitacion_salida = np.dot(w_salida, entradas_salida)
     activacion_salida = g(exitacion_salida)
     obtenido = activacion_salida
-    prediccion = np.argmax(obtenido) # Indice del valor maximo
-    print(f"Entrada: {numero} - Predicción: {prediccion} - Salida: {obtenido}")
+    print(f"Entrada: {numero} -> Salida: {obtenido:.4f}")
 
 

@@ -44,6 +44,33 @@ def g(h): return np.tanh(BETA * h)
 def g_derivada(h): return BETA * (1 - np.tanh(BETA * h)**2)
 def error_cuadratico_medio(obtenido, esperado): return 0.5 * (esperado - obtenido)**2
 
+def aplicar_ruido(arregloNumeros, probabilidad=0.02):
+    arregloConRuido = np.copy(arregloNumeros)
+    for i in range(35): #El sesgo no
+        if np.random.rand() < probabilidad:
+            # Invertimos el bit: 1 -> -1; -1 -> 1
+            arregloConRuido[i] *= -1 
+    return arregloConRuido
+
+# --- ENTRADAS CON RUIDO ---
+
+PROBABILIDAD = 0.02 #2%
+
+NUM_RUIDO = {
+    "0": aplicar_ruido(NUM["0"], PROBABILIDAD),
+    "1": aplicar_ruido(NUM["1"], PROBABILIDAD),
+    "2": aplicar_ruido(NUM["2"], PROBABILIDAD),
+    "3": aplicar_ruido(NUM["3"], PROBABILIDAD),
+    "4": aplicar_ruido(NUM["4"], PROBABILIDAD),
+    "5": aplicar_ruido(NUM["5"], PROBABILIDAD),
+    "6": aplicar_ruido(NUM["6"], PROBABILIDAD),
+    "7": aplicar_ruido(NUM["7"], PROBABILIDAD),
+    "8": aplicar_ruido(NUM["8"], PROBABILIDAD),
+    "9": aplicar_ruido(NUM["9"], PROBABILIDAD),
+}
+
+ENTRADAS_RUIDOSAS = np.array([NUM_RUIDO["0"],NUM_RUIDO["1"],NUM_RUIDO["2"],NUM_RUIDO["3"],NUM_RUIDO["4"],NUM_RUIDO["5"],NUM_RUIDO["6"],NUM_RUIDO["7"],NUM_RUIDO["8"],NUM_RUIDO["9"]])
+
 # --- INICIALIZACIÓN ---
 w_oculta = np.random.uniform(-0.5, 0.5, (N_OCULTAS, N_COMPONENTES)) # Entrada -> capa oculta | [10][35]
 w_salida = np.random.uniform(-0.5, 0.5, (N_SALIDA, N_OCULTAS + 1)) # Pesos oculta -> salida | [10][11]
@@ -100,7 +127,7 @@ for iteracion in range(COTA):
         print(f"Iteracion #{iteracion} - Error: {error}")
 
 # --- RESULTADOS ---
-print("\nResultados finales:")
+print("\nResultados finales (Numeros limpios):")
 for numero, ejemplo in enumerate(ENTRADAS):
     exitacion_oculta = np.dot(w_oculta, ejemplo)
     activacion_oculta = np.append(g(exitacion_oculta), 1)
@@ -110,5 +137,17 @@ for numero, ejemplo in enumerate(ENTRADAS):
     obtenido = activacion_salida
     prediccion = np.argmax(obtenido) # Indice del valor maximo
     print(f"Entrada: {numero} - Predicción: {prediccion} - Salida: {obtenido}")
+
+# --- TESTEO DE RUIDO ---
+print("\nResultados finales (Numeros con ruido):")
+for numero, ejemplo in enumerate(ENTRADAS_RUIDOSAS):
+    exitacion_oculta = np.dot(w_oculta, ejemplo)
+    activacion_oculta = np.append(g(exitacion_oculta), 1)
+    entradas_salida = activacion_oculta
+    exitacion_salida = np.dot(w_salida, entradas_salida)
+    activacion_salida = g(exitacion_salida)
+    obtenido = activacion_salida
+    prediccion = np.argmax(obtenido) # Indice del valor maximo
+    print(f"Entrada (Ruido): {numero} - Predicción: {prediccion} - Salida: {obtenido}")
 
 

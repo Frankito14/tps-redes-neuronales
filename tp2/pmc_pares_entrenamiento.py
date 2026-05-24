@@ -73,6 +73,7 @@ for iteracion in range(COTA):
     # Delta de capa oculta (retropropagando delta_salida)
 
     # w_salida[:-1] -> Quitamos el sesgo para calcular el delta de la capa oculta
+    # delta_salida es un escalar, no un array
     delta_oculto = g_derivada(exitacion_oculta) * (w_salida[:-1] * delta_salida)
 
     # delta_oculta = Error local [2] (Uno por cada neurona)
