@@ -1,8 +1,8 @@
 import numpy as np
 from keras.layers import Dense
 from keras.models import Sequential
-import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+import os#Creo que no hace falta en windows
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'#Creo que no hace falta en windows
 #tercera opcion
 entradas_base = [ 
     [0x04, 0x04, 0x02, 0x00, 0x00, 0x00, 0x00],
