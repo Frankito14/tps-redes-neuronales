@@ -1,0 +1,14 @@
+tf-env
+tf-env-2
+/tf-env-2
+tf-env-2/
+tf-env-2/*
+autocoder.keras
+decoder_1.keras
+encoder_1.keras
+decoder_2.keras
+encoder_2.keras
+espacio_latente.png
+encoder.keras
+decoder.keras
+autoencoder.keras
