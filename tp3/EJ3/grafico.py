@@ -37,7 +37,7 @@ decoder = tf.keras.models.load_model(RUTA_DECODER)
 print("Modelos cargados")
 
 X_ENTRENAMIENTO = np.array(ENTRADAS, dtype=np.float32) / 255.0
-X_ENTRENAMIENTO = X_ENTRENAMIENTO.reshape((len(ENTRADAS), 40 * 40))
+X_ENTRENAMIENTO = X_ENTRENAMIENTO.reshape((len(ENTRADAS), 40, 40, 1))
 
 # Obtener puntos latentes (Puntos en el plano)
 puntos_latentes = encoder.predict(X_ENTRENAMIENTO, verbose=0)
