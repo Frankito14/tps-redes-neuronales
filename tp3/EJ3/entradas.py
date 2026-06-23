@@ -17,15 +17,10 @@ def mantener_0_255(arreglo):
 def crear_entrada_sprite(path_sprite):
 
     imagen = Image.open(path_sprite)
-    imagen = imagen.convert('L')
-    
-    # 1. Cambiamos a float32 para poder normalizar con decimales
+    imagen = imagen.convert('L') # Convertir a escala de grises (por si las dudas)
+    # float32 para poder normalizar con decimales
     arreglo_base = np.asarray(imagen, dtype=np.float32)
-    
-    # 2. Aplicamos el escalado de 0 a 1 indispensable para redes convolucionales
     arreglo_normalizado = mantener_0_255(arreglo_base)
-
-    
     return arreglo_normalizado
 
 
@@ -64,9 +59,3 @@ POKEDEX = [
 NOMBRES = [pokemon["name"] for pokemon in POKEDEX]
 
 ENTRADAS = [crear_entrada_sprite(os.path.join(PATH_IMG, f"{pokemon['id']}.png")) for pokemon in POKEDEX]
-
-entrada = ENTRADAS[0]
-print(f"ENTRADAS: {len(ENTRADAS)} sprites procesados.")
-print(f"Rango de valores: min={entrada.min()} max={entrada.max()}")
-print(f"Valores únicos: {np.unique(entrada)}")
-print(f"Primera fila: {entrada[0][:20]}")
