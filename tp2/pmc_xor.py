@@ -78,11 +78,5 @@ for ejemplo in ENTRADAS:
     print(f"Entrada: {ejemplo[:2]} -> Salida: {obtenido:.4f}")
 
 
-# --- FORMULAS ECUACIONES ---
-print("\n--- Ecuaciones de los Hiperplanos (Capa Oculta) ---")
-for j in range(len(w_oculta)):
-    w1 = w_oculta[j][0]
-    w2 = w_oculta[j][1]
-    bias = w_oculta[j][2]
-    print(f"Hiperplano Neurona Oculta {j+1}: {w1:.4f}*x + {w2:.4f}*y + {bias:.4f} = 0")
+
   
