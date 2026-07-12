@@ -2,9 +2,12 @@ import os
 import numpy as np
 import tensorflow as tf
 
-model = tf.keras.models.load_model("modelo_entrenado.keras")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "modelo_entrenado.keras")
+DATASET_DIR = os.path.join(BASE_DIR, "dataset")
 
-DATASET_DIR = os.path.join(".", "dataset") 
+model = tf.keras.models.load_model(MODEL_PATH)
+
 IMG_SIZE = (512, 512)
 BATCH_SIZE = 32
 NUM_CLASSES = 3

@@ -1,11 +1,13 @@
 import os
 import tensorflow as tf
 from keras import layers, models
+from keras.optimizers import Adam
 
-DATASET_DIR = os.path.join(".", "dataset") 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATASET_DIR = os.path.join(BASE_DIR, "dataset")
 IMG_SIZE = (512, 512)
 BATCH_SIZE = 32
-NUM_CLASSES = 3
+NUM_CLASSES = 9
 EPOCHS = 15
 
 # Dataset de Entrenamiento
@@ -38,32 +40,73 @@ print("Clases detectadas:", train_dataset.class_names)
 
 # Optimización de carga (cache hace que entrene mucho más rápido)
 AUTOTUNE = tf.data.AUTOTUNE
-train_dataset = train_dataset.cache().prefetch(buffer_size=AUTOTUNE)
+#train_dataset = train_dataset.cache().prefetch(buffer_size=AUTOTUNE)
+train_dataset = train_dataset.shuffle(buffer_size=100).cache().prefetch(buffer_size=AUTOTUNE)
 val_dataset = val_dataset.cache().prefetch(buffer_size=AUTOTUNE)
 
-model = models.Sequential([
-    layers.Rescaling(1.0 / 255, input_shape=(*IMG_SIZE, 1)), # input de 512x512x1 en escala de grises
-    
-    layers.Conv2D(32, (3, 3), activation="relu"),
-    layers.MaxPooling2D((2, 2)), # Reduce a 256x256
-    
-    layers.Conv2D(64, (3, 3), activation="relu"),
-    layers.MaxPooling2D((2, 2)), # Reduce a 128x128
-    
-    layers.Conv2D(128, (3, 3), activation="relu"),
-    layers.MaxPooling2D((2, 2)), # Reduce a 64x64
+# Distintas configuraciones de la estructura de la red.
 
-    layers.Conv2D(256, (3, 3), activation="relu"),
-    layers.MaxPooling2D((2, 2)), # Reduce a 32x32
+config_xs_agresiva = {
+    "conv_blocks": [
+        {"filters": 16, "kernel_size": (3, 3)}
+    ],
+    "dropout_rate": 0.5,
+    "dense_units": 128
+}
+
+config_m_normal = {
+    "conv_blocks": [
+        {"filters": 16, "kernel_size": (3, 3)},
+        {"filters": 32, "kernel_size": (3, 3)},
+        {"filters": 64, "kernel_size": (3, 3)},
+        {"filters": 128, "kernel_size": (3, 3)},
+    ],
+    "dropout_rate": 0.5,
+    "dense_units": 128
+}
+
+# Captura rasgos mas generales en la primera capa 
+config_xl_big_kernel = {
+    "conv_blocks": [
+        {"filters": 32, "kernel_size": (7, 7)},
+        {"filters": 64, "kernel_size": (5, 5)},
+        {"filters": 128, "kernel_size": (3, 3)}
+    ],
+    "dropout_rate": 0.5,
+    "dense_units": 128
+}
+
+
+def modelo_dinamico(config):
+    model_layers = [
+        layers.Rescaling(1.0 / 255, input_shape=(*IMG_SIZE, 1)) # Capa de entrada fija con el reescalado
+    ]
     
-    layers.Conv2D(256, (3, 3), activation="relu"),
-    layers.MaxPooling2D((2, 2)), # Reduce a 16x16
+    # Añadir Conv2D de forma dinámica
+    for block in config["conv_blocks"]:
+        model_layers.append(
+            layers.Conv2D(
+                filters=block["filters"], 
+                kernel_size=block["kernel_size"], 
+                activation="relu"
+            )
+        )
     
-    layers.Flatten(),
-    layers.Dropout(0.5), # obligamos a desactivarse al azar a la mitad de las neuronas para evitar sobreajuste
-    layers.Dense(128, activation="relu"),
-    layers.Dense(NUM_CLASSES, activation="softmax"), # activación softmax para generar salidas 0 o 1
-])
+        model_layers.append(layers.MaxPooling2D((2, 2))) #A la mitad es un estandar
+            
+    # Bloque de clasificación final
+    model_layers.extend([
+        layers.Flatten(),
+        layers.Dropout(config["dropout_rate"]), # Porcentaje a desactivar al azar a la mitad de las neuronas para evitar sobreajuste
+        layers.Dense(config["dense_units"], activation="relu"),
+        layers.Dense(NUM_CLASSES, activation="softmax") # activación softmax para generar salidas 0 o 1
+    ])
+    
+    return models.Sequential(model_layers)
+
+
+# CAMBIAR LA CONFIGURACION ACA
+model = modelo_dinamico(config_m_normal)
 
 model.compile(
     optimizer="adam",
