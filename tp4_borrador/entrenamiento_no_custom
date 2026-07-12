@@ -64,3 +64,33 @@ historial_tl = modelo_transfer.fit(
 
 modelo_transfer.save("modelo_transfer_base.keras")
 print("\nListop")
+
+print("--- Fine-Tuning ---")
+#Descongelamos la base convolucional
+modelo_base.trainable = True
+print(f"Numero de capas en el modelo: {len(modelo_base.layers)}")
+
+#Congelamos las primeras 100 cpas
+capas_congeladas = 100
+for capa in modelo_base.layers[:capas_congeladas]:
+    capa.trainable = False
+
+modelo_transfer.compile(
+    optimizer=tf.keras.optimizers.Adam(learning_rate=1e-5),#Lr super chiquito para no estropear el apredizaje ya existente
+    loss="categorical_crossentropy",
+    metrics=["accuracy"]
+)
+
+#Entrenamineto final del modelo
+EPOCAS_FINALES=5
+print(f"Entrenando suavemente las ultimas {len(modelo_base.layers) - capas_congeladas} capas")
+historial_fine_tuning = modelo_transfer.fit(
+    set_entrenamiento_tl,
+    validation_data=set_prueba_tl,
+    epochs=EPOCAS_FINALES
+)
+
+modelo_transfer.save("modelo_transfer_finetuning.keras")
+print("Listop,ahora si")
+
+
