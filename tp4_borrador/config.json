@@ -1,0 +1,11 @@
+{
+  "nombre_prueba": "Prueba_3_Capas_Pesadas",
+  "bloques_convolucionales": [
+    {"filtros": 16},
+    {"filtros": 32},
+    {"filtros": 64}
+  ],
+  "neuronas_densas": 128,
+  "tasa_aprendizaje": 0.001,
+  "epocas": 10
+}

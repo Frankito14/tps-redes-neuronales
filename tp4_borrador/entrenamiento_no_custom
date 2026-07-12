@@ -1,0 +1,66 @@
+import tensorflow as tf
+from tensorflow.keras import layers, models
+from tensorflow.keras.applications import MobileNetV2
+
+print("---  CARGA DE DATOS  ---")
+# Aunque las fotos sean grises se usa rgb
+set_entrenamiento_tl = tf.keras.utils.image_dataset_from_directory(
+    "./tp4_borrador/img",
+    validation_split=0.2, subset="training", seed=123,
+    image_size=(512, 512), batch_size=32, label_mode='categorical',
+    color_mode="rgb"
+)
+
+set_prueba_tl = tf.keras.utils.image_dataset_from_directory(
+    "./tp4_borrador/img",
+    validation_split=0.2, subset="validation", seed=123,
+    image_size=(512, 512), batch_size=32, label_mode='categorical',
+    color_mode="rgb"
+)
+#Supuestamente va mas rapido
+AUTOTUNE = tf.data.AUTOTUNE
+set_entrenamiento_tl = set_entrenamiento_tl.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+set_prueba_tl = set_prueba_tl.cache().prefetch(buffer_size=AUTOTUNE)
+
+print("\n---  DESCARGANDO MOBILENETV2 ---")
+modelo_base = MobileNetV2(
+    input_shape=(512, 512, 3), # Exige 3 canales
+    include_top=False,         # Le sacamos el head original
+    weights='imagenet'         # Usa los pesos adquiridos al entrenar con la base de imagenes imagenet
+)
+
+# congela base convolucional
+modelo_base.trainable = False 
+
+print("\n---  ARMANDO NUEVO HEAD ---")
+modelo_transfer = models.Sequential()
+
+# Mobile exige que los píxeles vayan de -1 a 1 
+modelo_transfer.add(layers.Rescaling(1./127.5, offset=-1, input_shape=(512, 512, 3)))
+
+# Conecta la capa congelada
+modelo_transfer.add(modelo_base)
+
+
+modelo_transfer.add(layers.GlobalAveragePooling2D()) # Mas eficiente que flatten
+
+# One-hot
+modelo_transfer.add(layers.Dense(8, activation='softmax'))
+
+# compila y entrena
+modelo_transfer.compile(
+    optimizer='adam',
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+print("\n--- INICIA ENTRENAMIENTO ---")
+# probar con mas epocas
+historial_tl = modelo_transfer.fit(
+    set_entrenamiento_tl,
+    validation_data=set_prueba_tl,
+    epochs=5 
+)
+
+modelo_transfer.save("modelo_transfer_base.keras")
+print("\nListop")
