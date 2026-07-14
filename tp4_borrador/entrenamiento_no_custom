@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import layers, models
 from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.callbacks import EarlyStopping
 
 print("---  CARGA DE DATOS  ---")
 # Aunque las fotos sean grises se usa rgb
@@ -47,6 +48,16 @@ modelo_transfer.add(layers.GlobalAveragePooling2D()) # Mas eficiente que flatten
 # One-hot
 modelo_transfer.add(layers.Dense(8, activation='softmax'))
 
+
+#Configuracion de freno1
+freno1 = EarlyStopping(
+    monitor='val_accuracy',#Valor que toma como referencia
+    patience=10,#Epocas sin cambio que tolera
+    restore_best_weights=True#Recupera los pesos de la mejor epoca
+
+)
+
+
 # compila y entrena
 modelo_transfer.compile(
     optimizer='adam',
@@ -59,7 +70,8 @@ print("\n--- INICIA ENTRENAMIENTO ---")
 historial_tl = modelo_transfer.fit(
     set_entrenamiento_tl,
     validation_data=set_prueba_tl,
-    epochs=5 
+    epochs=25,
+    callbacks=[freno1]
 )
 
 modelo_transfer.save("modelo_transfer_base.keras")
@@ -75,19 +87,29 @@ capas_congeladas = 100
 for capa in modelo_base.layers[:capas_congeladas]:
     capa.trainable = False
 
+
+#Configuracion de freno2
+freno2 = EarlyStopping(
+    monitor='val_loss',#Valor que toma como referencia
+    patience=10,#Epocas sin cambio que tolera
+    restore_best_weights=True#Recupera los pesos de la mejor epoca
+)
+
+
 modelo_transfer.compile(
-    optimizer=tf.keras.optimizers.Adam(learning_rate=1e-5),#Lr super chiquito para no estropear el apredizaje ya existente
+    optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),#Lr super chiquito para no estropear el apredizaje ya existente
     loss="categorical_crossentropy",
     metrics=["accuracy"]
 )
 
 #Entrenamineto final del modelo
-EPOCAS_FINALES=5
+EPOCAS_FINALES=50
 print(f"Entrenando suavemente las ultimas {len(modelo_base.layers) - capas_congeladas} capas")
 historial_fine_tuning = modelo_transfer.fit(
     set_entrenamiento_tl,
     validation_data=set_prueba_tl,
-    epochs=EPOCAS_FINALES
+    epochs=EPOCAS_FINALES,
+    callbacks=[freno2]
 )
 
 modelo_transfer.save("modelo_transfer_finetuning.keras")

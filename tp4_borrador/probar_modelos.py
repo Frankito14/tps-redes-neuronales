@@ -8,9 +8,9 @@ CLASES = ["Aves", "Caballos", "Gatos", "Hipopotamos","Perros","Pinguinos","Serpi
 print("Cargando modelo")
 
 #Cargamos en "modelo" el que queramos utilizar
-modelo=tf.keras.models.load_model("modelo_entrenado.keras")
-#modelo=tf.keras.models.load_model("modelo_trasfer_base.keras")
-#modelo=tf.keras.models.load_model("modelo_trasfer_finetuning.keras")
+#modelo=tf.keras.models.load_model("modelo_entrenado.keras")
+#modelo=tf.keras.models.load_model("modelo_transfer_base.keras")
+modelo=tf.keras.models.load_model("modelo_transfer_finetuning.keras")
 
 print("Modelo cargado")
 
@@ -19,11 +19,13 @@ def predecir_imagen(ruta_imagen,es_escala_grises=True):
 
     img_para_mostrar = image.load_img(ruta_imagen)
 
-    # Dependiendo de que modelo estemos usando uamos uno u otro
-    modo_color = "grayscale" if es_escala_grises else "rgb"
-
-    img_para_red = image.load_img(ruta_imagen,target_size=(512,512),color_mode=modo_color)
+    #Siempre la cargamos en escala de grises
+    img_para_red = image.load_img(ruta_imagen, target_size=(512, 512), color_mode="grayscale")
     img_array = image.img_to_array(img_para_red)
+
+    #Si el modelo es Transfer Learning (espera 3 canales), clonamos el canal gris 3 veces
+    if not es_escala_grises:
+        img_array = np.concatenate([img_array, img_array, img_array], axis=-1)
 
     #Agregamos la dimencion batch que exige keras, queda de (1,512,512,canales)
     img_array = np.expand_dims(img_array,axis=0)
@@ -37,10 +39,10 @@ def predecir_imagen(ruta_imagen,es_escala_grises=True):
     probabilidad = prediccion_one_hot[0][indice_ganador]*100
 
     #Mostramos por pantalla
-    plt.fugure(figsize=(6,6))
+    plt.figure(figsize=(6,6))
     plt.imshow(img_para_mostrar)
     plt.title(f"Prediccion: {animal_predicho}\nSeguridad:{probabilidad:.2f}%",fontsize=14,fontweight="bold")
     plt.axis("off")
     plt.show()
-ruta_de_prueba = "imagen_prueba_1.jpg"#Aca va la imagen que elegimos
-predecir_imagen(ruta_de_prueba,es_escala_grises=True)
+ruta_de_prueba = "tp4_borrador\imgPruebas\stortuga_prueba.jpg"#Aca va la imagen que elegimos
+predecir_imagen(ruta_de_prueba,es_escala_grises=False)
