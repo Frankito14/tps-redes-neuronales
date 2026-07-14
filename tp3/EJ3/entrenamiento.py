@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
+import keras as keras
+from keras import layers
 
 from entradas import ENTRADAS
 

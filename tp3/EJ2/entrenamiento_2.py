@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras import layers, models, regularizers
+from keras import layers, models, regularizers
 from config_2 import DIM_ENTRADA, DIM_LATENTE, X_ENTRENAMIENTO, EPOCAS, X_ENTRENAMIENTO_RUIDO
 
 

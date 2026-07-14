@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras import layers, models, regularizers
+from keras import layers, models, regularizers
 import matplotlib.pyplot as plt
 from config_1 import DIM_ENTRADA, DIM_LATENTE, X_ENTRENAMIENTO, EPOCAS
 
