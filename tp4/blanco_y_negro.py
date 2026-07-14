@@ -29,8 +29,8 @@ def convertir_carpeta_a_bn(carpeta_origen, carpeta_destino):
     print(f"\n--- Proceso terminado. Se convirtieron {contador} imágenes. ---")
 
 # --- CONFIGURACIÓN DE RUTAS ---
-carpeta_de_entrada = "./dataset" 
-carpeta_de_salida = "./dataset/entrenamiento"
+carpeta_de_entrada = "./pruebas" 
+carpeta_de_salida = "./dataset_comparacion"
 
 # Ejecutar el script
 convertir_carpeta_a_bn(carpeta_de_entrada, carpeta_de_salida)

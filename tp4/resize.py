@@ -34,8 +34,8 @@ def escalar_carpeta(carpeta_origen, carpeta_destino):
 
 # --- CONFIGURACIÓN DE RUTAS ---
 # Reemplaza estas rutas con las tuyas locales
-carpeta_de_entrada = "./a" 
-carpeta_de_salida = "./dataset"
+carpeta_de_entrada = "./imgPruebas" 
+carpeta_de_salida = "./pruebas"
 
 # Ejecutar la función
 escalar_carpeta(carpeta_de_entrada, carpeta_de_salida)

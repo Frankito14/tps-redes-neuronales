@@ -2,12 +2,12 @@ import os
 import numpy as np
 import tensorflow as tf
 
-model = tf.keras.models.load_model("modelo_entrenado.keras")
+model = tf.keras.models.load_model("modelo_entrenado_linear_40.keras")
 
 DATASET_DIR = os.path.join(".", "dataset") 
 IMG_SIZE = (512, 512)
 BATCH_SIZE = 32
-NUM_CLASSES = 3
+NUM_CLASSES = 9
 EPOCHS = 15
 
 print("\n--- Evaluando predicciones en el conjunto de prueba ---")
@@ -41,12 +41,12 @@ for images, labels in val_dataset:
         
         if clase_real_id == clase_predicha_id:
             buenas += 1
-            resultado = "✅ CORRECTO"
+        #    resultado = "✅ CORRECTO"
         else:
             malas += 1
-            resultado = f"❌ INCORRECTO (Predijo: {nombre_predicho})"
+        #    resultado = f"❌ INCORRECTO (Predijo: {nombre_predicho})"
             
-        print(f"Imagen {buenas + malas}: Clase Real: {nombre_real} -> {resultado}")
+        #print(f"Imagen {buenas + malas}: Clase Real: {nombre_real} -> {resultado}")
 
 total = buenas + malas
 porcentaje_acierto = (buenas / total) * 100

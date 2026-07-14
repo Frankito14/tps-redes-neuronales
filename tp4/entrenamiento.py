@@ -5,8 +5,8 @@ from keras import layers, models
 DATASET_DIR = os.path.join(".", "dataset") 
 IMG_SIZE = (512, 512)
 BATCH_SIZE = 32
-NUM_CLASSES = 3
-EPOCHS = 15
+NUM_CLASSES = 9
+EPOCHS = 40
 
 # Dataset de Entrenamiento
 train_dataset = tf.keras.utils.image_dataset_from_directory(
@@ -44,24 +44,24 @@ val_dataset = val_dataset.cache().prefetch(buffer_size=AUTOTUNE)
 model = models.Sequential([
     layers.Rescaling(1.0 / 255, input_shape=(*IMG_SIZE, 1)), # input de 512x512x1 en escala de grises
     
-    layers.Conv2D(32, (3, 3), activation="relu"),
+    layers.Conv2D(32, (3, 3), activation="linear"),
     layers.MaxPooling2D((2, 2)), # Reduce a 256x256
     
-    layers.Conv2D(64, (3, 3), activation="relu"),
+    layers.Conv2D(64, (3, 3), activation="linear"),
     layers.MaxPooling2D((2, 2)), # Reduce a 128x128
     
-    layers.Conv2D(128, (3, 3), activation="relu"),
+    layers.Conv2D(128, (3, 3), activation="linear"),
     layers.MaxPooling2D((2, 2)), # Reduce a 64x64
 
-    layers.Conv2D(256, (3, 3), activation="relu"),
+    layers.Conv2D(256, (3, 3), activation="linear"),
     layers.MaxPooling2D((2, 2)), # Reduce a 32x32
     
-    layers.Conv2D(256, (3, 3), activation="relu"),
+    layers.Conv2D(256, (3, 3), activation="linear"),
     layers.MaxPooling2D((2, 2)), # Reduce a 16x16
     
     layers.Flatten(),
     layers.Dropout(0.5), # obligamos a desactivarse al azar a la mitad de las neuronas para evitar sobreajuste
-    layers.Dense(128, activation="relu"),
+    layers.Dense(128, activation="linear"),
     layers.Dense(NUM_CLASSES, activation="softmax"), # activación softmax para generar salidas 0 o 1
 ])
 
@@ -79,5 +79,5 @@ model.fit(
     epochs=EPOCHS,
 )
 
-model.save("modelo_entrenado.keras")
-print("Modelo guardado en modelo_entrenado.keras")
+model.save("modelo_entrenado_linear_40.keras")
+print("Modelo guardado en modelo_entrenado_linear_40.keras")
